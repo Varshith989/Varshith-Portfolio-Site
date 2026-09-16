@@ -120,11 +120,18 @@ function initProjectHover() {
 
 function initNavbar() {
     var navbar = document.querySelector(".navbar");
+    var menu = document.querySelector("#mobileMenu");
     if (!navbar) { return; }
 
     var lastScroll = 0;
 
     window.addEventListener("scroll", function () {
+        if (menu && menu.classList.contains("open")) {
+            navbar.style.transform = "translateX(-50%)";
+            navbar.style.opacity = "1";
+            return;
+        }
+
         var currentScroll = window.scrollY;
 
         if (currentScroll < 80) {
@@ -182,12 +189,30 @@ function initSmoothLinks() {
 function initMobileMenu() {
     var toggle = document.querySelector("#menuToggle");
     var menu = document.querySelector("#mobileMenu");
+    var backdrop = document.querySelector("#mobileMenuBackdrop");
+    var navbar = document.querySelector(".navbar");
     if (!toggle || !menu) { return; }
 
     function close() {
         toggle.setAttribute("aria-expanded", "false");
         toggle.setAttribute("aria-label", "Open menu");
         menu.classList.remove("open");
+        if (backdrop) { backdrop.classList.remove("open"); }
+        document.body.style.overflow = "";
+        if (typeof window.updateFloatingCta === "function") { window.updateFloatingCta(); }
+    }
+
+    function open() {
+        toggle.setAttribute("aria-expanded", "true");
+        toggle.setAttribute("aria-label", "Close menu");
+        menu.classList.add("open");
+        if (backdrop) { backdrop.classList.add("open"); }
+        document.body.style.overflow = "hidden";
+        if (navbar) {
+            navbar.style.transform = "translateX(-50%)";
+            navbar.style.opacity = "1";
+        }
+        if (typeof window.updateFloatingCta === "function") { window.updateFloatingCta(); }
     }
 
     toggle.addEventListener("click", function () {
@@ -195,11 +220,13 @@ function initMobileMenu() {
         if (isOpen) {
             close();
         } else {
-            toggle.setAttribute("aria-expanded", "true");
-            toggle.setAttribute("aria-label", "Close menu");
-            menu.classList.add("open");
+            open();
         }
     });
+
+    if (backdrop) {
+        backdrop.addEventListener("click", close);
+    }
 
     menu.addEventListener("click", function (event) {
         if (event.target.closest("a")) { close(); }
@@ -446,8 +473,44 @@ function initFooterCanvas() {
 
 function initFooterFloatingCta() {
     var cta = document.querySelector(".floating-cta");
+    var menu = document.querySelector("#mobileMenu");
+    var footer = document.querySelector("footer");
     if (!cta) return;
-    cta.style.removeProperty("transform");
+
+    var footerInView = false;
+
+    if (footer && "IntersectionObserver" in window) {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                footerInView = entry.isIntersecting;
+                updateCta();
+            });
+        }, { threshold: 0.05 });
+        observer.observe(footer);
+    }
+
+    function updateCta() {
+        var isMobile = window.innerWidth <= 768;
+        if (!isMobile) {
+            cta.classList.remove("mobile-hidden");
+            return;
+        }
+
+        var isMenuOpen = menu && menu.classList.contains("open");
+        var inHero = window.scrollY < 220;
+
+        if (isMenuOpen || inHero || footerInView) {
+            cta.classList.add("mobile-hidden");
+        } else {
+            cta.classList.remove("mobile-hidden");
+        }
+    }
+
+    window.updateFloatingCta = updateCta;
+
+    window.addEventListener("scroll", updateCta, { passive: true });
+    window.addEventListener("resize", updateCta, { passive: true });
+    updateCta();
 }
 
 
@@ -619,7 +682,7 @@ function initLiveLaptopTypewriter() {
 
 /* 2. Ambient Glow Pointer Follower */
 function initAmbientGlowFollower() {
-    if (window.matchMedia("(hover: none)").matches) return;
+    if (window.matchMedia("(hover: none)").matches || window.innerWidth <= 800) return;
 
     var glow = document.createElement("div");
     glow.className = "ambient-glow-follower";
