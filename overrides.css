@@ -1239,6 +1239,7 @@ section {
     border: 1px solid #fff;
     border-radius: 999px;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     padding: 6px 14px;
     font-size: 14px;
