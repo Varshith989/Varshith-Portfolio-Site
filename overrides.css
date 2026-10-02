@@ -511,6 +511,36 @@ img, picture, svg, video, canvas {
 
 /* ---------- PROJECTS ---------- */
 
+.project-placeholder.placeholder-airbnb {
+    background:
+        linear-gradient(
+            135deg,
+            #1e0c15,
+            #5e1428,
+            #ff385c
+        );
+}
+
+.project-placeholder.placeholder-dayflow {
+    background:
+        linear-gradient(
+            135deg,
+            #0c1427,
+            #1e3a8a,
+            #2563eb
+        );
+}
+
+.project-placeholder.placeholder-travel {
+    background:
+        linear-gradient(
+            135deg,
+            #111111,
+            #2b2210,
+            #d9a441
+        );
+}
+
 .project-placeholder.placeholder-ai {
     background:
         linear-gradient(
@@ -2597,6 +2627,7 @@ body:hover .ambient-glow-follower {
         height: 56px !important;
         padding: 0 14px !important;
         gap: 10px !important;
+        z-index: 10000 !important;
     }
 
     .nav-links,
@@ -3233,6 +3264,8 @@ body:hover .ambient-glow-follower {
 
     .project-link {
         width: 100% !important;
+        flex: 0 0 auto !important;
+        min-height: 44px !important;
     }
 }
 
